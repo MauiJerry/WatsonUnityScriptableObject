@@ -1,4 +1,11 @@
 ﻿/**
+ * WatsonServiceConnection.cs
+ *  Derived from IBM Watson's ExampleStreaming.cs by circutious route
+ *  Ryan R Anderson (ibm) hacked it for his Unity examples and posted
+ *    on GitHub  https://github.com/rustyoldrake/ibm_watson_unity
+ *    on YouTube https://www.youtube.com/watch?v=fOfFrGsNwHo
+ *  Jerry Isdale further hacked it at the Creating Reality Hackathon
+ * 
  * 
  * ############# HELLO VIRTUAL WORLD
 * Copyright 2015 IBM Corp. All Rights Reserved.
@@ -41,6 +48,41 @@ using System.Text.RegularExpressions;
 
 public class WatsonServiceConnection : MonoBehaviour
 {
+    public enum WatsonToneID
+    {
+        // emotionalTones
+        Joy, Sadness, Fear, Disgust, Anger,
+        // language Tones
+        Analytical, Confident, Tenatative,
+        // social Tone
+        Consientious, Extraversion, Agreeable, EmotionalRange
+    };
+
+    private static Dictionary<WatsonToneID, string> idToName = new Dictionary<WatsonToneID, string>
+    {
+        {WatsonServiceConnection.WatsonToneID.Joy, "Joy"},
+        {WatsonServiceConnection.WatsonToneID.Sadness, "Sadness"},
+        {WatsonServiceConnection.WatsonToneID.Fear, "Fear"},
+        {WatsonServiceConnection.WatsonToneID.Disgust, "Disgust"},
+        {WatsonServiceConnection.WatsonToneID.Anger, "Anger"},
+        {WatsonServiceConnection.WatsonToneID.Analytical, "Analytical"},
+        {WatsonServiceConnection.WatsonToneID.Confident, "Confident"},
+        {WatsonServiceConnection.WatsonToneID.Tenatative, "Tenatative"},
+        {WatsonServiceConnection.WatsonToneID.Consientious, "Consientious"},
+        {WatsonServiceConnection.WatsonToneID.Extraversion, "Extraversion"},
+        {WatsonServiceConnection.WatsonToneID.Agreeable, "Agreeable"},
+        {WatsonServiceConnection.WatsonToneID.EmotionalRange, "EmotionalRange"}
+
+    };
+
+    public static string nameForWatsonToneID(WatsonToneID key) 
+    {
+        return idToName[key];
+    }
+
+
+    // CAVEAT: remove credentials before sharing
+    // get your own from watson
     // keys to speech to text engine
     private string _username_STT = "0080f8de-6a51-4cb6-b7ca-74dfc91e46a8";     private string _password_STT = "hQqTQuoIgYBj";
     private string _url_STT = "https://stream.watsonplatform.net/speech-to-text/api";
@@ -48,18 +90,15 @@ public class WatsonServiceConnection : MonoBehaviour
     private string _username_TONE = "7f968f2a-4935-440a-96b2-144471fe4c5b";
     private string _password_TONE = "g2tz4PY2xqNs";
     private string _url_TONE = "https://gateway.watsonplatform.net/tone-analyzer/api";
-
+    //------------------
 
     // text fields that get the values from speech->text and toneAnalysis
     public Text ResultsField;
-    public Text EmotionText;
     public Text AnalyticsText;
 
-    // value above which we do something with the linked objects
-    public float emotion_threshold;
-    public bool useThreshold;
-
-    public EmotionHandler EmotionH;
+    [SerializeField]
+    private EmotionHandler EmotionH; // Object that abstracts scene from Watson
+    //------------------
 
     private int _recordingRoutine = 0;
     private string _microphoneID = null;
@@ -71,10 +110,7 @@ public class WatsonServiceConnection : MonoBehaviour
 
     private ToneAnalyzer _toneAnalyzer;
     private string _toneAnalyzerVersionDate = "2017-05-26";
-    private string _stringToTestTone1 = "START AND TEST - But this totally sucks! I hate beans and liver!";
-    private string _stringToTestTone2 = "SECOND TEST - Failed Test Sucks";
     private bool _analyzeToneTested = false;
-
 
     void Start()
     {
@@ -92,10 +128,6 @@ public class WatsonServiceConnection : MonoBehaviour
         Credentials credentials_TONE = new Credentials(_username_TONE, _password_TONE, _url_TONE);
         _toneAnalyzer = new ToneAnalyzer(credentials_TONE);
         _toneAnalyzer.VersionDate = _toneAnalyzerVersionDate;
-
-        // threshold above which a tone fires the handler
-        emotion_threshold = 0.75f;  // for loose demo - above 75% seems to work well - may vary by signal
-
 
     }
 
@@ -150,12 +182,12 @@ public class WatsonServiceConnection : MonoBehaviour
     {
         Active = false;
 
-        Log.Debug("ExampleStreaming.OnError()", "Error! {0}", error);
+        Log.Debug("WatsonServiceConnection.OnError()", "Error! {0}", error);
     }
 
     private IEnumerator RecordingHandler()
     {
-        Log.Debug("ExampleStreaming.RecordingHandler()", "devices: {0}", Microphone.devices);
+        Log.Debug("WatsonServiceConnection.RecordingHandler()", "devices: {0}", Microphone.devices);
         _recording = Microphone.Start(_microphoneID, true, _recordingBufferSize, _recordingHZ);
         yield return null;      // let _recordingRoutine get set..
 
@@ -174,7 +206,7 @@ public class WatsonServiceConnection : MonoBehaviour
             int writePos = Microphone.GetPosition(_microphoneID);
             if (writePos > _recording.samples || !Microphone.IsRecording(_microphoneID))
             {
-                Log.Error("ExampleStreaming.RecordingHandler()", "Microphone disconnected.");
+                Log.Error("WatsonServiceConnection.RecordingHandler()", "Microphone disconnected.");
 
                 StopRecording();
                 yield break;
@@ -211,26 +243,11 @@ public class WatsonServiceConnection : MonoBehaviour
     }
 
 
-
-    // TONE ZONE
-    private IEnumerator Examples()
-    {
-        //  Analyze tone
-        if (!_toneAnalyzer.GetToneAnalyze(OnGetToneAnalyze, OnFail, _stringToTestTone1))
-            Log.Debug("ExampleToneAnalyzer.Examples()", "Failed to analyze!");
-
-        while (!_analyzeToneTested)
-            yield return null;
-
-        Log.Debug("ExampleToneAnalyzer.Examples()", "Tone analyzer examples complete.");
-    }
-
-
     // Handle response from Tone Analysis 
     private void OnGetToneAnalyze(ToneAnalyzerResponse resp, Dictionary<string, object> customData)
     {
         Debug.Log("***********");
-        Log.Debug("ExampleToneAnalyzer.OnGetToneAnalyze()", "{0}", customData["json"].ToString());
+        Log.Debug("WatsonServiceConnection.OnGetToneAnalyze()", "{0}", customData["json"].ToString());
 
         //ResultsField.text = (customData["json"].ToString());  // works but long and cannot read
         //AnalyticsText.text = (customData["json"].ToString());  // works but long and cannot read
@@ -250,110 +267,46 @@ public class WatsonServiceConnection : MonoBehaviour
         // using indexes to arrays is poor technique for linking to specific Emotion values
         // but we dont have better examples.  Perhaps a string compare, but thats more time
         // here we encapsulate the magic numbers and use the EmotionHandler enum 
-        if (useThreshold)
-        {
-            Debug.Log("Using Threshold");
-            handleUsingThreshold(resp);
-        } else
-        {
-            Debug.Log("Handle without threshold in SeviceConnector... pass direct to EH");
 
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Anger,    resp.document_tone.tone_categories[0].tones[0].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Disgust,  resp.document_tone.tone_categories[0].tones[1].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Fear,     resp.document_tone.tone_categories[0].tones[2].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Joy,      resp.document_tone.tone_categories[0].tones[3].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Sadness,  resp.document_tone.tone_categories[0].tones[4].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Analytical, resp.document_tone.tone_categories[1].tones[0].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Confident, resp.document_tone.tone_categories[1].tones[1].score);
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Tenatative, resp.document_tone.tone_categories[1].tones[2].score);
-          
-        }
+        // category 0 = emotional tones
+        EmotionH.HandleEmotion(WatsonToneID.Anger,      resp.document_tone.tone_categories[0].tones[0].score);
+        EmotionH.HandleEmotion(WatsonToneID.Disgust,    resp.document_tone.tone_categories[0].tones[1].score);
+        EmotionH.HandleEmotion(WatsonToneID.Fear,       resp.document_tone.tone_categories[0].tones[2].score);
+        EmotionH.HandleEmotion(WatsonToneID.Joy,        resp.document_tone.tone_categories[0].tones[3].score);
+        EmotionH.HandleEmotion(WatsonToneID.Sadness,    resp.document_tone.tone_categories[0].tones[4].score);
+        // category 1 = language tones
+        EmotionH.HandleEmotion(WatsonToneID.Analytical, resp.document_tone.tone_categories[1].tones[0].score);
+        EmotionH.HandleEmotion(WatsonToneID.Confident,  resp.document_tone.tone_categories[1].tones[1].score);
+        EmotionH.HandleEmotion(WatsonToneID.Tenatative, resp.document_tone.tone_categories[1].tones[2].score);
+        // category 2 = social tones
 
+        EmotionH.HandleEmotion(WatsonToneID.Consientious,   resp.document_tone.tone_categories[2].tones[0].score);
+        EmotionH.HandleEmotion(WatsonToneID.Extraversion,   resp.document_tone.tone_categories[2].tones[1].score);
+        EmotionH.HandleEmotion(WatsonToneID.Agreeable,      resp.document_tone.tone_categories[2].tones[2].score);
+        EmotionH.HandleEmotion(WatsonToneID.EmotionalRange, resp.document_tone.tone_categories[2].tones[3].score);
 
+ 
         // OTHER TEXT - Formatting for On Screen dump - LATER - pretty this up to use standard DESERIALIZE methods and table
         string RAW = (customData["json"].ToString());  // works but long and cannot read
                                                        //RAW = string.Concat("Tone Response \n", RAW); 
-        RAW = Regex.Replace(RAW, "tone_categories", " \\\n");
+        RAW = Regex.Replace(RAW, "tone_categories", "tones: \\\n");
+        RAW = Regex.Replace(RAW, "category_id", "\\\ncategory: ");
+        RAW = Regex.Replace(RAW, "category_name", "  ");
         RAW = Regex.Replace(RAW, "}", "} \\\n");
         RAW = Regex.Replace(RAW, "tone_id", " ");
         RAW = Regex.Replace(RAW, "tone_name", " ");
         RAW = Regex.Replace(RAW, "score", " ");
         RAW = Regex.Replace(RAW, @"[{\\},:]", "");
         RAW = Regex.Replace(RAW, "\"", "");
-        //ResultsField.text = RAW;
+         //ResultsField.text = RAW;
         AnalyticsText.text = RAW;
 
         _analyzeToneTested = true;
     }
 
-    private void handleUsingThreshold(ToneAnalyzerResponse resp)
-    {
-        Debug.Log("HandleUsingThreshold");
-        if (resp.document_tone.tone_categories[0].tones[0].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Anger";
-            double score = resp.document_tone.tone_categories[0].tones[0].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Anger, score);
-        }
-        else if (resp.document_tone.tone_categories[0].tones[1].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Disgust";
-            double score = resp.document_tone.tone_categories[0].tones[1].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Disgust, score);
-
-        }
-        else if (resp.document_tone.tone_categories[0].tones[2].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Fear";
-            double score = resp.document_tone.tone_categories[0].tones[2].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Fear, score);
-        }
-        else if (resp.document_tone.tone_categories[0].tones[3].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Joy";
-            double score = resp.document_tone.tone_categories[0].tones[3].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Joy, score);
-
-        }
-        else if (resp.document_tone.tone_categories[0].tones[4].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Sadness";
-            double score = resp.document_tone.tone_categories[0].tones[4].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Sadness, score);
-        }
-
-        // Language tone - https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/
-        else if (resp.document_tone.tone_categories[1].tones[0].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Analytical";
-            double score = resp.document_tone.tone_categories[1].tones[0].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Analytical, score);
-        }
-        else if (resp.document_tone.tone_categories[1].tones[1].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Confident";
-            double score = resp.document_tone.tone_categories[1].tones[1].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Confident, score);
-        }
-        else if (resp.document_tone.tone_categories[1].tones[2].score > emotion_threshold)
-        {
-            if (EmotionText != null)
-                EmotionText.text = "Tentative";
-            double score = resp.document_tone.tone_categories[1].tones[2].score;
-            EmotionH.HandleEmotion(EmotionHandler.EmotionType.Tenatative, score);
-        }
-    }
-
     private void OnFail(RESTConnector.Error error, Dictionary<string, object> customData)
     {
-        Log.Error("ExampleRetrieveAndRank.OnFail()", "Error received: {0}", error.ToString());
+        Log.Error("WatsonServiceConnection.OnFail()", "Error received: {0}", error.ToString());
     }
 
 
@@ -370,12 +323,12 @@ public class WatsonServiceConnection : MonoBehaviour
                 foreach (var alt in res.alternatives)
                 {
                     string text = string.Format("{0} ({1}, {2:0.00})\n", alt.transcript, res.final ? "Final" : "Interim", alt.confidence);
-                    Log.Debug("ExampleStreaming.OnRecognize()", text);
+                    Log.Debug("WatsonServiceConnection.OnRecognize()", text);
                     ResultsField.text = text;
 
                     string GHI = alt.transcript;
                     if (!_toneAnalyzer.GetToneAnalyze(OnGetToneAnalyze, OnFail, GHI))
-                        Log.Debug("ExampleToneAnalyzer.Examples()", "Failed to analyze!");
+                        Log.Debug("WatsonServiceConnection.Examples()", "Failed to analyze!");
 
                     // ENTERING THE TONE ZONE - when the utterance contains this word
                     if (alt.transcript.Contains("reset"))
@@ -391,7 +344,7 @@ public class WatsonServiceConnection : MonoBehaviour
                 {
                     foreach (var keyword in res.keywords_result.keyword)
                     {
-                        Log.Debug("ExampleStreaming.OnRecognize()", "keyword: {0}, confidence: {1}, start time: {2}, end time: {3}", keyword.normalized_text, keyword.confidence, keyword.start_time, keyword.end_time);
+                        Log.Debug("WatsonServiceConnection.OnRecognize()", "keyword: {0}, confidence: {1}, start time: {2}, end time: {3}", keyword.normalized_text, keyword.confidence, keyword.start_time, keyword.end_time);
                         //ResultsField.text = "tone analyzed! 222";
                     }
                 }
@@ -401,9 +354,9 @@ public class WatsonServiceConnection : MonoBehaviour
                 {
                     foreach (var wordAlternative in res.word_alternatives)
                     {
-                        Log.Debug("ExampleStreaming.OnRecognize()", "Word alternatives found. Start time: {0} | EndTime: {1}", wordAlternative.start_time, wordAlternative.end_time);
+                        Log.Debug("WatsonServiceConnection.OnRecognize()", "Word alternatives found. Start time: {0} | EndTime: {1}", wordAlternative.start_time, wordAlternative.end_time);
                         foreach (var alternative in wordAlternative.alternatives)
-                            Log.Debug("ExampleStreaming.OnRecognize()", "\t word: {0} | confidence: {1}", alternative.word, alternative.confidence);
+                            Log.Debug("WatsonServiceConnection.OnRecognize()", "\t word: {0} | confidence: {1}", alternative.word, alternative.confidence);
                     }
                 }
             }
@@ -416,7 +369,7 @@ public class WatsonServiceConnection : MonoBehaviour
         {
             foreach (SpeakerLabelsResult labelResult in result.speaker_labels)
             {
-                Log.Debug("ExampleStreaming.OnRecognize()", string.Format("speaker result: {0} | confidence: {3} | from: {1} | to: {2}", labelResult.speaker, labelResult.from, labelResult.to, labelResult.confidence));
+                Log.Debug("WatsonServiceConnection.OnRecognize()", string.Format("speaker result: {0} | confidence: {3} | from: {1} | to: {2}", labelResult.speaker, labelResult.from, labelResult.to, labelResult.confidence));
             }
         }
     }

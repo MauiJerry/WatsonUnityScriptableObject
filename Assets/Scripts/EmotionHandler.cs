@@ -1,124 +1,88 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // for Text in UI
 
 public class EmotionHandler : MonoBehaviour
 {
-
-
-    public enum EmotionType { Joy, Sadness, Fear, Disgust, Anger, Analytical, Confident, Tenatative };
-    public EmotionType Emotion;
-
     // one of these for each emotion
     public GameObject joyObject;
     public GameObject sadnessObject;
     public GameObject fearObject;
     public GameObject disgustObject;
     public GameObject angerObject;
+    // language tone
     public GameObject analyticalObject;
     public GameObject confidentObject;
     public GameObject tentativeObject;
+    // Social tone
+    //Consientious, Extroversion, Agreeable, EmotionalRange
+    public GameObject consientiousObject;
+    public GameObject extraversionObject;
+    public GameObject agreeableObject;
+    public GameObject emotionalRangeObject;
+
+    public Text maxEmotionTextUI;
+
+    // we use a Dictionary to map between WatsonToneID and GameObjects to be affected by them
+    private static Dictionary<WatsonServiceConnection.WatsonToneID, GameObject> dictionary;
 
     public float emotion_threshold;
+    private float maxEmotionScore = 0f;
+
 
     void Start()
     {
         // threshold above which a tone fires the handler
-        emotion_threshold = 0.75f;  // for loose demo - above 75% seems to work well - may vary by signal
+        emotion_threshold = 0.5f;  // for loose demo - above 75% seems to work well - may vary by signal
+        dictionary = new Dictionary<WatsonServiceConnection.WatsonToneID, GameObject>
+        {
+            {WatsonServiceConnection.WatsonToneID.Joy, joyObject},
+            {WatsonServiceConnection.WatsonToneID.Sadness, sadnessObject},
+            {WatsonServiceConnection.WatsonToneID.Fear, fearObject},
+            {WatsonServiceConnection.WatsonToneID.Disgust, disgustObject},
+            {WatsonServiceConnection.WatsonToneID.Anger, angerObject},
+            {WatsonServiceConnection.WatsonToneID.Analytical, analyticalObject},
+            {WatsonServiceConnection.WatsonToneID.Confident, confidentObject},
+            {WatsonServiceConnection.WatsonToneID.Tenatative, tentativeObject},
+            {WatsonServiceConnection.WatsonToneID.Consientious, consientiousObject},
+            {WatsonServiceConnection.WatsonToneID.Extraversion, extraversionObject},
+            {WatsonServiceConnection.WatsonToneID.Agreeable, agreeableObject},
+            {WatsonServiceConnection.WatsonToneID.EmotionalRange, emotionalRangeObject}
+        };
     }
 
-    public void HandleEmotion(EmotionType emotionType, double score)
+    public void HandleEmotion(WatsonServiceConnection.WatsonToneID watsonToneId, double score)
     {
         Debug.Log("EmotionHandler ");
 
-        switch (emotionType)
+        // display the highest scoring value
+        if (score > maxEmotionScore)
         {
-            case EmotionType.Joy:
-                // do something to Emotion Object, can use score to alter value
-                if (joyObject != null)
-                {
-                    if (score > emotion_threshold)
-                        joyObject.SetActive(true);
-                    else
-                        joyObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Sadness:
-                // do something to Emotion Object, can use score to alter value
-                if (sadnessObject != null)
-                {
-                    if (score > emotion_threshold)
-                        sadnessObject.SetActive(true);
-                    else
-                        sadnessObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Fear:
-                // do something to Emotion Object, can use score to alter value
-                if (fearObject != null)
-                {
-                    if (score > emotion_threshold)
-                        fearObject.SetActive(true);
-                    else
-                        fearObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Disgust:
-                // do something to Emotion Object, can use score to alter value
-                if (disgustObject != null)
-                {
-                    if (score > emotion_threshold)
-                        disgustObject.SetActive(true);
-                    else
-                        disgustObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Anger:
-                // do something to Emotion Object, can use score to alter value
-                if (angerObject != null)
-                {
-                    if (score > emotion_threshold)
-                        angerObject.SetActive(true);
-                    else
-                        angerObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Analytical:
-                // do something to Emotion Object, can use score to alter value
-                if (analyticalObject != null)
-                {
-                    if (score > emotion_threshold)
-                        analyticalObject.SetActive(true);
-                    else
-                        analyticalObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Confident:
-                // do something to Emotion Object, can use score to alter value
-                if (confidentObject != null)
-                {
-                    if (score > emotion_threshold)
-                        confidentObject.SetActive(true);
-                    else
-                        confidentObject.SetActive(false);
-                }
-                break;
-            case EmotionType.Tenatative:
-                // do something to Emotion Object, can use score to alter value
-                if (tentativeObject != null)
-                {
-                    if (score > emotion_threshold)
-                        tentativeObject.SetActive(true);
-                    else
-                        tentativeObject.SetActive(false);
-                }
-                break;
+            if (maxEmotionTextUI != null)
+                maxEmotionTextUI.text = WatsonServiceConnection.nameForWatsonToneID(watsonToneId);
+            maxEmotionScore = (float)score;
         }
+
+        // lookup the corresponding GameObject and apply action to it
+        if (dictionary.ContainsKey(watsonToneId))
+        {
+            GameObject go = dictionary[watsonToneId];
+            if (go != null)
+            {
+                // Action to be applied
+                // if different for different WatsonToneID, use a switch or dictionary
+                // simple case is to toggle on/off based on emotion_threshold
+                if (score > emotion_threshold)
+                {
+                    go.SetActive(true);
+
+                }
+                else
+                    go.SetActive(false);
+            }
+        }
+
     }
 
-
-    void reactWithScale(GameObject gameObject)
-    {
-
-    }
 }
