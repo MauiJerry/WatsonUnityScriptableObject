@@ -60,18 +60,18 @@ public class WatsonServiceConnection : MonoBehaviour
 
     private static Dictionary<WatsonToneID, string> idToName = new Dictionary<WatsonToneID, string>
     {
-        {WatsonServiceConnection.WatsonToneID.Joy, "Joy"},
-        {WatsonServiceConnection.WatsonToneID.Sadness, "Sadness"},
-        {WatsonServiceConnection.WatsonToneID.Fear, "Fear"},
-        {WatsonServiceConnection.WatsonToneID.Disgust, "Disgust"},
-        {WatsonServiceConnection.WatsonToneID.Anger, "Anger"},
-        {WatsonServiceConnection.WatsonToneID.Analytical, "Analytical"},
-        {WatsonServiceConnection.WatsonToneID.Confident, "Confident"},
-        {WatsonServiceConnection.WatsonToneID.Tenatative, "Tenatative"},
-        {WatsonServiceConnection.WatsonToneID.Consientious, "Consientious"},
-        {WatsonServiceConnection.WatsonToneID.Extraversion, "Extraversion"},
-        {WatsonServiceConnection.WatsonToneID.Agreeable, "Agreeable"},
-        {WatsonServiceConnection.WatsonToneID.EmotionalRange, "EmotionalRange"}
+        {WatsonToneID.Joy, "Joy"},
+        {WatsonToneID.Sadness, "Sadness"},
+        {WatsonToneID.Fear, "Fear"},
+        {WatsonToneID.Disgust, "Disgust"},
+        {WatsonToneID.Anger, "Anger"},
+        {WatsonToneID.Analytical, "Analytical"},
+        {WatsonToneID.Confident, "Confident"},
+        {WatsonToneID.Tenatative, "Tenatative"},
+        {WatsonToneID.Consientious, "Consientious"},
+        {WatsonToneID.Extraversion, "Extraversion"},
+        {WatsonToneID.Agreeable, "Agreeable"},
+        {WatsonToneID.EmotionalRange, "EmotionalRange"}
 
     };
 
@@ -100,17 +100,17 @@ public class WatsonServiceConnection : MonoBehaviour
     private EmotionHandler EmotionH; // Object that abstracts scene from Watson
     //------------------
 
+    // to record speech
     private int _recordingRoutine = 0;
     private string _microphoneID = null;
     private AudioClip _recording = null;
     private int _recordingBufferSize = 1;
     private int _recordingHZ = 22050;
 
+    // links to Watson tools
     private SpeechToText _speechToText;
-
     private ToneAnalyzer _toneAnalyzer;
     private string _toneAnalyzerVersionDate = "2017-05-26";
-    private bool _analyzeToneTested = false;
 
     void Start()
     {
@@ -301,7 +301,6 @@ public class WatsonServiceConnection : MonoBehaviour
          //ResultsField.text = RAW;
         AnalyticsText.text = RAW;
 
-        _analyzeToneTested = true;
     }
 
     private void OnFail(RESTConnector.Error error, Dictionary<string, object> customData)
