@@ -1,8 +1,8 @@
 ﻿<Properties StartupConfiguration="{6877705C-FBD9-0C4F-5AFB-6FB431E5D39D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EmotionHandlerUIText.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/WatsonToneData.cs">
     <Files>
       <File FileName="Assets/Scripts/WatsonServiceConnection.cs" Line="305" Column="1" />
-      <File FileName="Assets/Scripts/WatsonToneData.cs" Line="9" Column="52" />
+      <File FileName="Assets/Scripts/WatsonToneData.cs" Line="14" Column="1" />
       <File FileName="Assets/Scripts/EmotionHandlerUIText.cs" Line="81" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
