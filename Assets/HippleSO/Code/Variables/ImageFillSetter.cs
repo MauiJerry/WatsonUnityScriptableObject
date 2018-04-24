@@ -30,6 +30,11 @@ namespace RoboRyanTron.Unite2017.Variables
 
         private void Update()
         {
+            if (Image == null) 
+            {
+                Debug.LogError("Missing Image for ImageFillSetter");
+                return;
+            }
             Image.fillAmount = Mathf.Clamp01(
                 Mathf.InverseLerp(Min, Max, Variable));
         }

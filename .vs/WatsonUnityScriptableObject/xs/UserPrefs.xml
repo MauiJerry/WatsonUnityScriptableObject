@@ -1,9 +1,10 @@
 ﻿<Properties StartupConfiguration="{1F415BC5-BD36-7736-8CC2-863FA37DAB7D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/isdalePreHipple/Scripts/WatsonToneData.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/WatsonSTT_TAService.cs">
     <Files>
-      <File FileName="Assets/Scripts/WatsonSTT_TAService.cs" Line="203" Column="40" />
+      <File FileName="Assets/Scripts/WatsonSTT_TAService.cs" Line="44" Column="21" />
       <File FileName="Assets/isdalePreHipple/Scripts/WatsonServiceConnection.cs" Line="250" Column="5" />
       <File FileName="Assets/isdalePreHipple/Scripts/WatsonToneData.cs" Line="14" Column="1" />
+      <File FileName="Assets/Scripts/TextPanelFiller.cs" Line="18" Column="56" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

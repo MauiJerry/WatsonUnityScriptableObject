@@ -42,6 +42,8 @@ public class WatsonSTT_TAService : MonoBehaviour
     [SerializeField]
     private FloatVariable TA_Sadness;
     [SerializeField]
+    private FloatVariable TA_Fear;
+    [SerializeField]
     private FloatVariable TA_Disgust;
     [SerializeField]
     private FloatVariable TA_Anger;
