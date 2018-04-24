@@ -1,10 +1,9 @@
 ﻿<Properties StartupConfiguration="{1F415BC5-BD36-7736-8CC2-863FA37DAB7D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/isdalePreHipple/Scripts/AvatarEmotion.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/isdalePreHipple/Scripts/WatsonToneData.cs">
     <Files>
-      <File FileName="Assets/HippleSO/Code/Variables/FloatVariable.cs" Line="13" Column="18" />
       <File FileName="Assets/Scripts/WatsonSTT_TAService.cs" Line="203" Column="40" />
       <File FileName="Assets/isdalePreHipple/Scripts/WatsonServiceConnection.cs" Line="250" Column="5" />
-      <File FileName="Assets/isdalePreHipple/Scripts/AvatarEmotion.cs" Line="104" Column="1" />
+      <File FileName="Assets/isdalePreHipple/Scripts/WatsonToneData.cs" Line="14" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
