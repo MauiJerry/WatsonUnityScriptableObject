@@ -26,10 +26,10 @@ using UnityEngine.UI;
 
 public class ExampleStreaming : MonoBehaviour
 {
-    private string _username = "0080f8de-6a51-4cb6-b7ca-74dfc91e46a8";
-    private string _password = "hQqTQuoIgYBj";
-    private string _url = "https://stream.watsonplatform.net/speech-to-text/api";
-    [SerializeField]
+    private string _username = null;
+    private string _password = null;
+    private string _url = null;
+    
     public Text ResultsField;
 
     private int _recordingRoutine = 0;
@@ -177,6 +177,7 @@ public class ExampleStreaming : MonoBehaviour
                     Log.Debug("ExampleStreaming.OnRecognize()", text);
                     ResultsField.text = text;
                 }
+
                 if (res.keywords_result != null && res.keywords_result.keyword != null)
                 {
                     foreach (var keyword in res.keywords_result.keyword)

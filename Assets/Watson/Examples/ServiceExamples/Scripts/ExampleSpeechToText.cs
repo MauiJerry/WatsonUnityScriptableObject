@@ -26,8 +26,8 @@ using IBM.Watson.DeveloperCloud.Connection;
 
 public class ExampleSpeechToText : MonoBehaviour
 {
-    private string _username = "0080f8de-6a51-4cb6-b7ca-74dfc91e46a8";
-    private string _password = "hQqTQuoIgYBj";
+    private string _username = null;
+    private string _password = null;
     private string _url = null;
 
     private SpeechToText _speechToText;
@@ -88,10 +88,8 @@ public class ExampleSpeechToText : MonoBehaviour
     {
         LogSystem.InstallDefaultReactors();
 
-        Debug.Log("Fence1");
         //  Create credential and instantiate service
         Credentials credentials = new Credentials(_username, _password, _url);
-        Debug.Log("Fence2");
 
         _speechToText = new SpeechToText(credentials);
         _customCorpusFilePath = Application.dataPath + "/Watson/Examples/ServiceExamples/TestData/theJabberwocky-utf8.txt";
@@ -100,35 +98,28 @@ public class ExampleSpeechToText : MonoBehaviour
         _oggResourceMimeType = Utility.GetMimeType(Path.GetExtension(_oggResourceUrl));
 
         _speechToText.StreamMultipart = true;
-        Debug.Log("Fence3");
 
         Runnable.Run(Examples());
     }
 
     private IEnumerator Examples()
     {
-        Debug.Log("Enter Examples");
         Runnable.Run(DownloadAcousticResource());
         while (!_isAudioLoaded)
             yield return null;
 
-        Debug.Log("DownloadOggResource");
         Runnable.Run(DownloadOggResource());
         while (!_isOggLoaded)
             yield return null;
 
         //  Recognize
-        Log.Debug("ExampleSpeechToText.Examples()",  "Attempting to recognize");
+        Log.Debug("ExampleSpeechToText.Examples()", "Attempting to recognize");
         List<string> keywords = new List<string>();
         keywords.Add("speech");
-        keywords.Add("space");
         _speechToText.KeywordsThreshold = 0.5f;
         _speechToText.InactivityTimeout = 120;
         _speechToText.StreamMultipart = false;
         _speechToText.Keywords = keywords.ToArray();
-
-        Debug.Log("keywords: " + _speechToText.Keywords.ToString());
-
         _speechToText.Recognize(HandleOnRecognize, OnFail, _acousticResourceData, _acousticResourceMimeType);
         while (!_recognizeTested)
             yield return null;
