@@ -242,6 +242,10 @@ public class WatsonServiceConnection : MonoBehaviour
         yield break;
     }
 
+    private void OnFail(RESTConnector.Error error, Dictionary<string, object> customData)
+    {
+        Log.Error("WatsonServiceConnection.OnFail()", "Error received: {0}", error.ToString());
+    }
 
     // Handle response from Tone Analysis 
     private void OnGetToneAnalyze(ToneAnalyzerResponse resp, Dictionary<string, object> customData)
@@ -301,11 +305,6 @@ public class WatsonServiceConnection : MonoBehaviour
          //ResultsField.text = RAW;
         AnalyticsText.text = RAW;
 
-    }
-
-    private void OnFail(RESTConnector.Error error, Dictionary<string, object> customData)
-    {
-        Log.Error("WatsonServiceConnection.OnFail()", "Error received: {0}", error.ToString());
     }
 
 
