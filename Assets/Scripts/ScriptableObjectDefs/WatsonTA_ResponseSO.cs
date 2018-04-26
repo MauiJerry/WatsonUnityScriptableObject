@@ -7,6 +7,9 @@ using RoboRyanTron.Unite2017.Variables;
 
 // Watson Tone Analysis Response
 // each of the fields SO should be named, or maybe like an Enum?
+// change of mind. instead of one TA object, we use multiple FloatVariables
+// this seems to be better approach for composablity
+// so this class eliminated in next implementation
 public class ToneAnalysis_ResponseSO : ScriptableObject 
 {
 

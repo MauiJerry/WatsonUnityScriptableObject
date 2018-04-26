@@ -251,6 +251,7 @@ public class WatsonServiceConnection : MonoBehaviour
     private void OnGetToneAnalyze(ToneAnalyzerResponse resp, Dictionary<string, object> customData)
     {
         Debug.Log("***********");
+        // watson Log.Debug; systemName, format, args
         Log.Debug("WatsonServiceConnection.OnGetToneAnalyze()", "{0}", customData["json"].ToString());
 
         //ResultsField.text = (customData["json"].ToString());  // works but long and cannot read

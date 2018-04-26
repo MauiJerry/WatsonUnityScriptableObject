@@ -3,6 +3,24 @@
 /// built as MonoBehavior but data passed in and out as Scriptable Objects
 /// based on the various ExampleService.cs in SDK and RustyOldDrake GitHub
 ///   Note the IBM code uses its own Logging system, not Unity's Debug
+/// Might be better to split in two services but for now do combined here.
+/// RustyOldDrake and Watson ExampleStreaming all contain this in header
+/* ############# HELLO VIRTUAL WORLD
+* Copyright 2015 IBM Corp.All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* THIS IS VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY ROUGH CODE - WARNING :) 
+*/
 /// </summary>
 using System.Collections;
 using System.Collections.Generic;
@@ -20,7 +38,7 @@ using IBM.Watson.DeveloperCloud.Connection;
 // Ryan's ScriptableObject variables
 using RoboRyanTron.Unite2017.Variables;
 
-public class WatsonSTT_TAService : MonoBehaviour 
+public class WatsonSTT_TAService : MonoBehaviour
 {
 
     [SerializeField]
@@ -33,10 +51,16 @@ public class WatsonSTT_TAService : MonoBehaviour
     StringVariable recognizedText;
 
     // collection of floats returned by Watson Tone Analysis
+    // change of mind. instead of one TA object, we use multiple FloatVariables
+    // this seems to be better approach for composablity
+    //[SerializeField]
+    //ToneAnalysis_ResponseSO toneAnalysisResponse;
+
     [SerializeField]
-    ToneAnalysis_ResponseSO toneAnalysisResponse;
+    private FloatVariable TA_EmotionThreshold; // values lower than this are ignored
 
     // Tone Analysis Reponses
+    // Emotion Category
     [SerializeField]
     private FloatVariable TA_Joy;
     [SerializeField]
@@ -48,6 +72,7 @@ public class WatsonSTT_TAService : MonoBehaviour
     [SerializeField]
     private FloatVariable TA_Anger;
 
+    // Sentence Category
     [SerializeField]
     private FloatVariable TA_Analytical;
     [SerializeField]
@@ -55,6 +80,7 @@ public class WatsonSTT_TAService : MonoBehaviour
     [SerializeField]
     private FloatVariable TA_Tenatative;
 
+    /* Other Categories unsupported at present
     [SerializeField]
     private FloatVariable TA_Consientious;
     [SerializeField]
@@ -63,6 +89,7 @@ public class WatsonSTT_TAService : MonoBehaviour
     private FloatVariable TA_Agreeable;
     [SerializeField]
     private FloatVariable TA_EmotionalRange;
+    */
 
     //------------------
     private Credentials credentials_STT;
@@ -115,7 +142,7 @@ public class WatsonSTT_TAService : MonoBehaviour
     /// Awake this instance.
     ///   use Awake to copy values to the Watson data structure
     /// </summary>
-	void Awake () 
+	void Awake()
     {
         print("Speech2Text user: " + stt_credentialSO.Username);
         print("Speech2Text  pwd: " + stt_credentialSO.Password);
@@ -129,14 +156,14 @@ public class WatsonSTT_TAService : MonoBehaviour
             stt_credentialSO.Username,
             stt_credentialSO.Password,
             stt_credentialSO.URL);
-        
+
         credentials_TONE = new Credentials(
             ta_credentialSO.Username,
             ta_credentialSO.Password,
             ta_credentialSO.URL);
 
-	}
-	
+    }
+
     //------------------
     /// <summary>
     /// Start() method connects to the two Watson Serices and starts the recording
@@ -282,7 +309,9 @@ public class WatsonSTT_TAService : MonoBehaviour
             {
                 // Commands
                 // at present we dont recognize any Commands, so this section is commented ot
-                //and decimated the code, so if you want it back read Ryan's Example 4 Robot
+                // and decimated the code, so if you want it back read Ryan's Example 4 Robot
+                // How many alt usually come back? is updating a single SO correct 
+                //    or should there be a collection/queue?
                 foreach (var alt in res.alternatives)
                 {
                     string text = string.Format("{0} ({1}, {2:0.00})\n", alt.transcript, res.final ? "Final" : "Interim", alt.confidence);
@@ -290,8 +319,8 @@ public class WatsonSTT_TAService : MonoBehaviour
 
                     // UPDATE THE ScriptableObject
                     // watchers need to refresh in their Update()
-                    // or we need to implement EventVariables
-                    // as Hipple mentions
+                    // or we need to implement EventVariables similar to Hipple GameEvent
+                    // VariableEvent?
                     recognizedText.Value = text;
 
                     // SEND TO TONE ANALYSIS
@@ -301,7 +330,7 @@ public class WatsonSTT_TAService : MonoBehaviour
                         Log.Debug("WatsonServiceConnection.Examples()", "Failed to analyze!");
 
                     // Command Parsing
-                    // This should be done as a Watcher on recognizedText
+                    // This could be done better as a separate Watcher on recognizedText
                     if (alt.transcript.Contains("reset"))
                     {
                         //ResetAction();
@@ -353,6 +382,75 @@ public class WatsonSTT_TAService : MonoBehaviour
     /// <param name="customData">Custom data.</param>
     private void OnGetToneAnalyze(ToneAnalyzerResponse resp, Dictionary<string, object> customData)
     {
+        // extract response values from JSON response
+        // watson Log.Debug; systemName, format, args
+        Log.Debug("WatsonServiceConnection.OnGetToneAnalyze()", "{0}", customData["json"].ToString());
+
+        //ResultsField.text = (customData["json"].ToString());  // works but long and cannot read
+        //AnalyticsText.text = (customData["json"].ToString());  // works but long and cannot read
+
+        // I dont particularly like the direct use of arrays and indicies
+        // these Magic Numbers might change if IBM shuffles the responses
+        // would be better to use lookup, but that may add a fair bit of overhead?
+        // direct indexing is from R.Andersons's example git
+        // the ToneAnalyzerResponse is an object with collection sof Document_tone 
+        // and Sentence_tone
+        // Document_tone is collection of ToneCategory Arrays,
+        // Sentence_tone is a bit more involved and not used in the examples, so unused here.
+        // Tone Categories are Id+Name + array of Tone
+        // Tone's are score, tone_id and tone_name.
+        // These look like classics for refactoring into SO Variables
+        // 
+        // Log Analysis Repsonse
+        Log.Debug("$$$$$ TONE LOG 0 ANGER", " {0} = {0}", 
+                  resp.document_tone.tone_categories[0].tones[0].tone_name,
+                  resp.document_tone.tone_categories[0].tones[0].score
+                 ); // ANGER resp.document_tone.tone_categories [0].tones [0].score);
+        Log.Debug("$$$$$ TONE LOG 1 DISGUST", " {0} = {0}",
+                  resp.document_tone.tone_categories[0].tones[1].tone_name,
+                  resp.document_tone.tone_categories[0].tones[1].score); // DISGUST
+        Log.Debug("$$$$$ TONE LOG 2 FEAR", " {0} = {0}",
+                  resp.document_tone.tone_categories[0].tones[2].tone_name,
+                  resp.document_tone.tone_categories[0].tones[2].score); // FEAR
+        Log.Debug("$$$$$ TONE LOG 3 JOY", " {0} = {0}",
+                  resp.document_tone.tone_categories[0].tones[3].tone_name,
+                  resp.document_tone.tone_categories[0].tones[3].score); // JOY
+        Log.Debug("$$$$$ TONE LOG 4 SAD", " {0} = {0}",
+                  resp.document_tone.tone_categories[0].tones[4].tone_name,
+                  resp.document_tone.tone_categories[0].tones[4].score); // SADNESS
+
+        Log.Debug("$$$$$ TONE ANALYTICAL", " {0} = {0}",
+                  resp.document_tone.tone_categories[1].tones[0].tone_name,
+                  resp.document_tone.tone_categories[1].tones[0].score); // ANALYTICAL
+        Log.Debug("$$$$$ TONE CONFIDENT", " {0} = {0}",
+                  resp.document_tone.tone_categories[1].tones[1].tone_name,
+                  resp.document_tone.tone_categories[1].tones[1].score); //  CONFIDENT
+        Log.Debug("$$$$$ TONE TENTATIVE", " {0} = {0}",
+                  resp.document_tone.tone_categories[1].tones[1].tone_name,
+                  resp.document_tone.tone_categories[1].tones[2].score); //  TENTATIVE
+
+        // Note that the original ExampleStreaming4RobotEmotion uses if/else
+        // so only one value would be updated per pass.
+        // here we are checking all values and setting the SO
+        // Emotion Tone
+        if (resp.document_tone.tone_categories[0].tones[0].score > TA_EmotionThreshold)
+            TA_Anger = (float)resp.document_tone.tone_categories[0].tones[0].score;
+
+        if (resp.document_tone.tone_categories[0].tones[1].score > TA_EmotionThreshold)
+            TA_Disgust = (float)resp.document_tone.tone_categories[0].tones[1].score;
+ 
+        if (resp.document_tone.tone_categories[0].tones[2].score > TA_EmotionThreshold)
+            TA_Fear = (float)resp.document_tone.tone_categories[0].tones[2].score;
+        
+        if (resp.document_tone.tone_categories[0].tones[3].score > TA_EmotionThreshold)
+            TA_Joy = (float)resp.document_tone.tone_categories[0].tones[3].score;
+        
+        if (resp.document_tone.tone_categories[0].tones[4].score > TA_EmotionThreshold)
+            TA_Sadness = (float)resp.document_tone.tone_categories[0].tones[4].score;
+
+        // Language tone - https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/
+
+
     }
 
 }
