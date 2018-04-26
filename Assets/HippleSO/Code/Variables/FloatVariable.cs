@@ -3,6 +3,9 @@
 // 
 // Author: Ryan Hipple
 // Date:   10/04/17
+// jbisdale: noting hipple's blog this is bare min Variable
+// variables in use at his company have a LOT more
+// of particular interest is the Watcher Event handling (ala GameEvent)
 // ----------------------------------------------------------------------------
 
 using UnityEngine;

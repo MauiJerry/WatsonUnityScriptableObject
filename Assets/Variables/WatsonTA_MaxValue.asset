@@ -11,5 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7d5cc13f1f75d940a87a38a5781d179, type: 3}
   m_Name: WatsonTA_MaxValue
   m_EditorClassIdentifier: 
-  DeveloperDescription: 
+  DeveloperDescription: Watson ToneAnalysis MaxValue for graphs
   Value: 1

@@ -1,18 +1,10 @@
 ﻿<Properties StartupConfiguration="{1F415BC5-BD36-7736-8CC2-863FA37DAB7D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/WatsonSTT_TAService.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/SOUI_FloatVarValue.cs">
     <Files>
-      <File FileName="Assets/Scripts/WatsonSTT_TAService.cs" Line="401" Column="48" NotebookId="1" />
-      <File FileName="Assets/isdalePreHipple/Scripts/WatsonToneData.cs" Line="6" Column="36" NotebookId="1" />
-      <File FileName="Assets/Scripts/ScriptableObjectDefs/WatsonTA_ResponseSO.cs" Line="10" Column="1" NotebookId="1" />
-      <File FileName="Assets/isdalePreHipple/Scripts/WatsonServiceConnection.cs" Line="255" Column="54" NotebookId="1" />
+      <File FileName="Assets/Scripts/WatsonSTT_TAService.cs" Line="39" Column="40" />
+      <File FileName="Assets/isdalePreHipple/Scripts/WatsonServiceConnection.cs" Line="287" Column="23" />
+      <File FileName="Assets/Scripts/SOUI_FloatVarValue.cs" Line="33" Column="68" />
     </Files>
-    <FloatingWindows>
-      <FloatingWindow WindowId="1" X="0" Y="23" Width="640" Height="480">
-        <Files>
-          <File FileName="Assets/rustyOldRake_ibm_watson_unity/ExampleStreaming4RobotEmotion.cs" Line="343" Column="28" />
-        </Files>
-      </FloatingWindow>
-    </FloatingWindows>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

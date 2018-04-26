@@ -401,56 +401,80 @@ public class WatsonSTT_TAService : MonoBehaviour
         // Tone's are score, tone_id and tone_name.
         // These look like classics for refactoring into SO Variables
         // 
-        // Log Analysis Repsonse
-        Log.Debug("$$$$$ TONE LOG 0 ANGER", " {0} = {0}", 
+        // Log Analysis Repsonse, read consol to be sure our index# match up to name
+        // Emotional Tones
+        Log.Debug("$$$$$ TONE Emotional ANGER", " {0} = {1}",
                   resp.document_tone.tone_categories[0].tones[0].tone_name,
                   resp.document_tone.tone_categories[0].tones[0].score
                  ); // ANGER resp.document_tone.tone_categories [0].tones [0].score);
-        Log.Debug("$$$$$ TONE LOG 1 DISGUST", " {0} = {0}",
+        Log.Debug("$$$$$ TONE Emotional DISGUST", " {0} = {1}",
                   resp.document_tone.tone_categories[0].tones[1].tone_name,
                   resp.document_tone.tone_categories[0].tones[1].score); // DISGUST
-        Log.Debug("$$$$$ TONE LOG 2 FEAR", " {0} = {0}",
+        Log.Debug("$$$$$ TONE Emotional FEAR", " {0} = {1}",
                   resp.document_tone.tone_categories[0].tones[2].tone_name,
                   resp.document_tone.tone_categories[0].tones[2].score); // FEAR
-        Log.Debug("$$$$$ TONE LOG 3 JOY", " {0} = {0}",
+        Log.Debug("$$$$$ TONE Emotional JOY", " {0} = {1}",
                   resp.document_tone.tone_categories[0].tones[3].tone_name,
                   resp.document_tone.tone_categories[0].tones[3].score); // JOY
-        Log.Debug("$$$$$ TONE LOG 4 SAD", " {0} = {0}",
+        Log.Debug("$$$$$ TONE Emotional SAD", " {0} = {1}",
                   resp.document_tone.tone_categories[0].tones[4].tone_name,
                   resp.document_tone.tone_categories[0].tones[4].score); // SADNESS
-
-        Log.Debug("$$$$$ TONE ANALYTICAL", " {0} = {0}",
+                                                                         // language tones
+        Log.Debug("$$$$$ TONE ANALYTICAL", " {0} = {1}",
                   resp.document_tone.tone_categories[1].tones[0].tone_name,
                   resp.document_tone.tone_categories[1].tones[0].score); // ANALYTICAL
-        Log.Debug("$$$$$ TONE CONFIDENT", " {0} = {0}",
+        Log.Debug("$$$$$ TONE CONFIDENT", " {0} = {1}",
                   resp.document_tone.tone_categories[1].tones[1].tone_name,
                   resp.document_tone.tone_categories[1].tones[1].score); //  CONFIDENT
-        Log.Debug("$$$$$ TONE TENTATIVE", " {0} = {0}",
-                  resp.document_tone.tone_categories[1].tones[1].tone_name,
+        Log.Debug("$$$$$ TONE TENTATIVE", " {0} = {1}",
+                  resp.document_tone.tone_categories[1].tones[2].tone_name,
                   resp.document_tone.tone_categories[1].tones[2].score); //  TENTATIVE
+                                                                         // category 2 = social tones
+                                                                         // Consientious,  Extraversion Agreeable, EmotionalRange
+                                                                         // not sure what other categories are implemented or planned or deprecated
 
         // Note that the original ExampleStreaming4RobotEmotion uses if/else
         // so only one value would be updated per pass.
         // here we are checking all values and setting the SO
-        // Emotion Tone
-        if (resp.document_tone.tone_categories[0].tones[0].score > TA_EmotionThreshold)
-            TA_Anger = (float)resp.document_tone.tone_categories[0].tones[0].score;
+        // if no EmotionThreshold assigned, then report all value updates
+        // should either [Require ] or test for TA_ variables
 
-        if (resp.document_tone.tone_categories[0].tones[1].score > TA_EmotionThreshold)
-            TA_Disgust = (float)resp.document_tone.tone_categories[0].tones[1].score;
- 
-        if (resp.document_tone.tone_categories[0].tones[2].score > TA_EmotionThreshold)
-            TA_Fear = (float)resp.document_tone.tone_categories[0].tones[2].score;
-        
-        if (resp.document_tone.tone_categories[0].tones[3].score > TA_EmotionThreshold)
-            TA_Joy = (float)resp.document_tone.tone_categories[0].tones[3].score;
-        
-        if (resp.document_tone.tone_categories[0].tones[4].score > TA_EmotionThreshold)
-            TA_Sadness = (float)resp.document_tone.tone_categories[0].tones[4].score;
+        updateSOValue(resp, TA_Anger,   0, 0);
+        updateSOValue(resp, TA_Disgust, 0, 1);
+        updateSOValue(resp, TA_Fear,    0, 2);
+        updateSOValue(resp, TA_Joy,     0, 3);
+        updateSOValue(resp, TA_Sadness, 0, 4);
+        /* before updateSOValue...
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[1].score > TA_EmotionThreshold.Value)
+            TA_Disgust.Value = (float)resp.document_tone.tone_categories[0].tones[1].score;
+
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[2].score > TA_EmotionThreshold.Value)
+            TA_Fear.Value = (float)resp.document_tone.tone_categories[0].tones[2].score;
+
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[3].score > TA_EmotionThreshold.Value)
+            TA_Joy.Value = (float)resp.document_tone.tone_categories[0].tones[3].score;
+
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[4].score > TA_EmotionThreshold.Value)
+            TA_Sadness.Value = (float)resp.document_tone.tone_categories[0].tones[4].score;
+        */
 
         // Language tone - https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/
+        /*        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[0].score > TA_EmotionThreshold.Value)
+					TA_Analytical.Value = (float)resp.document_tone.tone_categories[1].tones[0].score;
 
+				if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[1].score > TA_EmotionThreshold.Value)
+					TA_Confident.Value = (float)resp.document_tone.tone_categories[1].tones[0].score;
 
+				if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[2].score > TA_EmotionThreshold.Value)
+					TA_Tenatative.Value = (float)resp.document_tone.tone_categories[1].tones[2].score;
+		*/
+        // skip social tone for now
     }
 
+    private void updateSOValue(ToneAnalyzerResponse resp, FloatVariable fv, int categoryId, int toneId)
+    {
+        if (fv == null) return; // no variable to update
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[0].score > TA_EmotionThreshold.Value)
+            fv.Value = (float)resp.document_tone.tone_categories[0].tones[0].score;
+    }
 }
