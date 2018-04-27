@@ -474,7 +474,7 @@ public class WatsonSTT_TAService : MonoBehaviour
     private void updateSOValue(ToneAnalyzerResponse resp, FloatVariable fv, int categoryId, int toneId)
     {
         if (fv == null) return; // no variable to update
-        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[0].score > TA_EmotionThreshold.Value)
-            fv.Value = (float)resp.document_tone.tone_categories[0].tones[0].score;
+        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[categoryId].tones[toneId].score > TA_EmotionThreshold.Value)
+            fv.Value = (float)resp.document_tone.tone_categories[categoryId].tones[toneId].score;
     }
 }

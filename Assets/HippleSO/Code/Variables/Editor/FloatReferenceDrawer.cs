@@ -32,7 +32,7 @@ namespace RoboRyanTron.Unite2017.Variables
 
             label = EditorGUI.BeginProperty(position, label, property);
             position = EditorGUI.PrefixLabel(position, label);
-            
+                     
             EditorGUI.BeginChangeCheck();
 
             // Get properties
@@ -41,7 +41,7 @@ namespace RoboRyanTron.Unite2017.Variables
             SerializedProperty variable = property.FindPropertyRelative("Variable");
 
             // Calculate rect for configuration button
-            Rect buttonRect = new Rect(position);
+            Rect buttonRect = new Rect(position.x, position.y,popupStyle.fixedWidth + popupStyle.margin.right, 30);
             buttonRect.yMin += popupStyle.margin.top;
             buttonRect.width = popupStyle.fixedWidth + popupStyle.margin.right;
             position.xMin = buttonRect.xMax;
