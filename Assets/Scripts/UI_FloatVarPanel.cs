@@ -44,7 +44,6 @@ public class UI_FloatVarPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
         if (valueText == null)
         {
             Debug.LogError("Missing valueText for UISO_FloatVarPanel");

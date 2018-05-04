@@ -37,6 +37,7 @@ using IBM.Watson.DeveloperCloud.Connection;
 
 // Ryan's ScriptableObject variables
 using RoboRyanTron.Unite2017.Variables;
+using System;
 
 public class WatsonSTT_TAService : MonoBehaviour
 {
@@ -144,6 +145,9 @@ public class WatsonSTT_TAService : MonoBehaviour
     /// </summary>
 	void Awake()
     {
+        // Watson logging initialization
+        LogSystem.InstallDefaultReactors();
+
         print("Speech2Text user: " + stt_credentialSO.Username);
         print("Speech2Text  pwd: " + stt_credentialSO.Password);
         print("Speech2Text  url: " + stt_credentialSO.URL);
@@ -171,10 +175,8 @@ public class WatsonSTT_TAService : MonoBehaviour
     /// </summary>
     void Start()
     {
-        // Watson logging, interface to Speech to Text and Tone Analyzer Servises
-        LogSystem.InstallDefaultReactors();
 
-        //  Create credential and instantiate service
+        // instantiate service
         _speechToText = new SpeechToText(credentials_STT);
         Active = true;
 
@@ -329,13 +331,8 @@ public class WatsonSTT_TAService : MonoBehaviour
                     if (!_toneAnalyzer.GetToneAnalyze(OnGetToneAnalyze, OnFail, GHI))
                         Log.Debug("WatsonServiceConnection.Examples()", "Failed to analyze!");
 
-                    // Command Parsing
-                    // This could be done better as a separate Watcher on recognizedText
-                    if (alt.transcript.Contains("reset"))
-                    {
-                        //ResetAction();
-                    }
-
+                    // pass to Command Parsing
+                    CommandParser(alt.transcript);
                 }
 
 
@@ -360,6 +357,17 @@ public class WatsonSTT_TAService : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    private void CommandParser(string transcript)
+    {
+        // This could be done better as a separate Watcher on recognizedText
+        // but since we arent really doing anything yet
+        // we will just leave it here
+        if (transcript.Contains("reset"))
+        {
+            print("Command 'reset' recognized, and ignored");
         }
     }
 
@@ -444,30 +452,7 @@ public class WatsonSTT_TAService : MonoBehaviour
         updateSOValue(resp, TA_Fear,    0, 2);
         updateSOValue(resp, TA_Joy,     0, 3);
         updateSOValue(resp, TA_Sadness, 0, 4);
-        /* before updateSOValue...
-        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[1].score > TA_EmotionThreshold.Value)
-            TA_Disgust.Value = (float)resp.document_tone.tone_categories[0].tones[1].score;
 
-        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[2].score > TA_EmotionThreshold.Value)
-            TA_Fear.Value = (float)resp.document_tone.tone_categories[0].tones[2].score;
-
-        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[3].score > TA_EmotionThreshold.Value)
-            TA_Joy.Value = (float)resp.document_tone.tone_categories[0].tones[3].score;
-
-        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[0].tones[4].score > TA_EmotionThreshold.Value)
-            TA_Sadness.Value = (float)resp.document_tone.tone_categories[0].tones[4].score;
-        */
-
-        // Language tone - https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/
-        /*        if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[0].score > TA_EmotionThreshold.Value)
-					TA_Analytical.Value = (float)resp.document_tone.tone_categories[1].tones[0].score;
-
-				if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[1].score > TA_EmotionThreshold.Value)
-					TA_Confident.Value = (float)resp.document_tone.tone_categories[1].tones[0].score;
-
-				if (TA_EmotionThreshold == null || resp.document_tone.tone_categories[1].tones[2].score > TA_EmotionThreshold.Value)
-					TA_Tenatative.Value = (float)resp.document_tone.tone_categories[1].tones[2].score;
-		*/
         // skip social tone for now
     }
 

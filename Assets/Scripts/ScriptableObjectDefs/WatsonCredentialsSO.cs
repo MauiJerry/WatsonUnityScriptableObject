@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using RoboRyanTron.Unite2017.Variables;
 
 [CreateAssetMenu]
@@ -28,5 +26,4 @@ public class WatsonCredentialsSO : ScriptableObject
         get { return _url.Value; }
         set { _url.Value = value; }
     }
-
 }
