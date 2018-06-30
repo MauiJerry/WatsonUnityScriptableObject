@@ -11,6 +11,9 @@ public class TextPanelFiller : MonoBehaviour
     [SerializeField]
     StringVariable soText;
     [SerializeField]
+    WatchedStringVariable wsoText;
+
+    [SerializeField]
     Text displayText;
 
     /// <summary>
@@ -20,8 +23,12 @@ public class TextPanelFiller : MonoBehaviour
     private void Update()
     {
         if (soText == null)
-            displayText.text = "No SO StringVariable";
-        else
+        {
+            if (wsoText == null)
+                displayText.text = "No SO StringVariable";
+            else
+                displayText.text = wsoText.Value;
+        } else
             displayText.text = soText.Value;
     }
 

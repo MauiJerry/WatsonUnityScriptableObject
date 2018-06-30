@@ -1,11 +1,12 @@
 fileFormatVersion: 2
 guid: a7585573b6f2d46519612094e218b473
-timeCreated: 1524607611
-licenseType: Pro
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - soText: {instanceID: 0}
+  - wsoText: {fileID: 11400000, guid: e199963dff3544359b74a5060d9ee9b6, type: 2}
+  - displayText: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
